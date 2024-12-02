@@ -33,14 +33,9 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.Todo = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const skema = new mongoose_1.Schema({
+const TodoSchema = new mongoose_1.Schema({
     todo: { type: String, required: true }
-});
-const käyttäjä = new mongoose_1.Schema({
-    name: { type: String, required: true },
-    todos: [skema]
-});
-const User = mongoose_1.default.model('User', käyttäjä);
-exports.User = User;
+}, { timestamps: true });
+exports.Todo = mongoose_1.default.model('Todo', TodoSchema);

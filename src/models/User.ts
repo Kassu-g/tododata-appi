@@ -9,15 +9,16 @@ interface IUser extends Document {
   todos: ITodo[];
 }
 
-const TodoSchema = new Schema<ITodo>({
+
+const skema = new Schema<ITodo>({
   todo: { type: String, required: true }
 });
 
-const UserSchema = new Schema<IUser>({
+const käyttäjä = new Schema<IUser>({
   name: { type: String, required: true },
-  todos: [TodoSchema]
+  todos: [skema]
 });
 
-const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
+const User: Model<IUser> = mongoose.model<IUser>('User', käyttäjä);
 
 export { User, IUser, ITodo };

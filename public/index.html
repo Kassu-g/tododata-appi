@@ -1,34 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .todo-container {
+      margin-bottom: 30px;
+    }
+
+    #todoList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #todoList li {
+      background-color: #f4f4f4;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+
+    #response {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Todo App</h1>
+
+  <h1>Todo App</h1>
+
+  <div class="todo-container">
+    <h2>Lisää uusi tehtävä</h2>
     <form id="todoForm">
-        <input type="text" id="userInput" placeholder="Enter your name" required>
-        <input type="text" id="todoInput" placeholder="Enter a todo" required>
-        <button id="submit-data" type="submit">Add Todo</button>
+      <input type="text" id="nimi" placeholder="Käyttäjän nimi" required>
+      <input type="text" id="tehtävä" placeholder="Tehtävä" required>
+      <button type="submit" id="submit-data">Lisää tehtävä</button>
     </form>
-    <p id="responseMessage"></p>
+    <p id="response"></p>
+  </div>
 
-    <script>
-        document.getElementById('todoForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const name = document.getElementById('userInput').value;
-            const todo = document.getElementById('todoInput').value;
+  <div class="todo-container">
+    <h2>Etsi käyttäjä ja näytä tehtävät</h2>
+    <input type="text" id="searchName" placeholder="Etsi käyttäjä" required>
+    <button id="searchButton">Etsi</button>
+    <h3>Käyttäjän tehtävät:</h3>
+    <ul id="todoList"></ul>
+    <p id="response"></p>
+  </div>
 
-            const response = await fetch('/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, todo })
+  <script>
+    document.getElementById('submit-data').addEventListener('click', function(event) {
+      event.preventDefault();
+
+      const nimi = document.getElementById('nimi').value;
+      const tehtävä = document.getElementById('tehtävä').value;
+
+      fetch('/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nimi, tehtävä })
+      })
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('response').innerText = data;
+      })
+      .catch(error => console.error('Virhe lisättäessä tehtävää:', error));
+    });
+
+    document.getElementById('searchButton').addEventListener('click', function() {
+      const searchName = document.getElementById('searchName').value;
+
+      fetch(`/todos/${searchName}`)
+        .then(response => {
+          if (response.status === 404) {
+            document.getElementById('response').innerText = 'Käyttäjää ei löytynyt';
+            return [];
+          }
+          return response.json();
+        })
+        .then(todos => {
+          const todoList = document.getElementById('todoList');
+          todoList.innerHTML = '';
+
+          if (todos.length > 0) {
+            todos.forEach(todo => {
+              const li = document.createElement('li');
+              li.textContent = todo.tehtävä;
+              todoList.appendChild(li);
             });
-
-            const message = await response.text();
-            document.getElementById('responseMessage').textContent = message;
+          }
+        })
+        .catch(error => {
+          console.error('Virhe haettaessa tehtäviä:', error);
+          document.getElementById('response').innerText = 'Virhe haettaessa tehtäviä';
         });
-    </script>
+    });
+  </script>
+
 </body>
 </html>
